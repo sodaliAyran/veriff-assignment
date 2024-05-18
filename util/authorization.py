@@ -2,7 +2,7 @@ from fastapi import Response
 from functools import wraps
 from typing import Callable
 
-from core.session_handler import session_handler
+from core import session_handler
 
 
 def auth(func: Callable):

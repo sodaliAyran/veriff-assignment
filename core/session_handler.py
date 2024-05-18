@@ -1,11 +1,11 @@
 import uuid
 
 from util.metrics import latency
-from proxies import db_proxy
+from proxies import DB_PROXY
 
 
 class SessionHandler:
-    db_proxy = db_proxy
+    db_proxy = DB_PROXY
 
     def __init__(self):
         return

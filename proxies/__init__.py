@@ -1,3 +1,5 @@
+from proxies.cache_proxy import CacheProxy
 from proxies.database_proxy import DatabaseProxy
 
-db_proxy = DatabaseProxy()
+DB_PROXY = DatabaseProxy()
+CACHE_PROXY = CacheProxy()
