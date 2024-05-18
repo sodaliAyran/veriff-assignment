@@ -2,22 +2,28 @@
 
 ## Table of Contents
 1. [Goal](#goal)
-2. [Functional Requirements](#functional-requirements)
-3. [Non-Functional Requirements](#non-functional-requirements)
+    1. [Functional Requirements](#functional-requirements)
+    2. [Non-Functional Requirements](#non-functional-requirements)
 4. [Design Decisions](#design-decisions)
+5. [Endpoints](#endpoints)
+    1. [/ping](#ping)
+    2. [/session](#session)
+    3. [/encode](#encode)
+    4. [/summary](#summary)
 
 ## Goal
 
-The goal of this project is to create a readable, performant, easily extendable and throughly tested web service that can create user session summaries for the images they uploaded. This service will exclusively be an API and will not have a user interface.
+The goal of this project is to create a readable, performant, easily extendable and throughly tested web service that can create user session summaries for the images they uploaded. 
+This service will exclusively be an API and will not have a user interface.
 
-## Functional Requirements
+### Functional Requirements
 - Customers will be able to start sessions.
 - Customers will be able to upload images to the sessions.
 - Each session can hold up to 5 files.
 - Each image will be encoded using a dependency call.
 - Customers will be able to see their session summary.
 
-## Non Functional Requirements
+### Non Functional Requirements
 - The service needs to be documented.
 - The code needs to be readable.
 - Design of the service and its architecture should be easily extendable.
@@ -138,19 +144,81 @@ If I see that I have encoded this value before I won't send a call to the depend
 While requesting the summary I will look through my LRU cache first for any cached data and if I can not find the data I will query my database to get the data and cache it.
 
 The cache key I will use here will be the image hashes. Becase using customer API key as hash key may cause some problematic behaviours for the following scenario.
-- Customer uploads a file.
-- File is encoded and uploaded to the database.
-- Customer asks for summary.
-- Data not found in cache. Database is queried.
-- Data is returned from the database and cached.
-- Valid result is returned.
-- Customer uploads another file.
-- Customer asks for summary.
-- Data is found in the cache.
-- Customer gets stale summary.
+1. Customer uploads a file.
+2. File is encoded and uploaded to the database.
+3. Customer asks for summary.
+4. Data not found in cache. Database is queried.
+5. Data is returned from the database and cached.
+6. Valid result is returned.
+7. Customer uploads another file.
+8. Customer asks for summary.
+9. Data is found in the cache.
+10. Customer gets stale summary.
 
 Another way to mitigate this problem would be caching during the encoding process but as established previously our service will be read heavy than write heavy therefore caching the most frequently used images will have better performance.
 
 All this will cost data staleness but I don't think the encodings will change frequently therefore it is safe to cache here.
 
 ## Endpoints
+
+### ping
+**Accepts:** GET
+
+**Returns:** 200
+
+A health check endpoint validate the service is up and running.
+
+### session
+**Accepts:** GET, DELETE
+
+**Returns:** 200, 204, 500
+
+The endpoint to create and clear user sessions. 
+Keep in mind that session clear will not delete the API key but the resources related to the session.
+A regular session creation workflow will be like below:
+
+1. Request hits the endpoint.
+2. SessionService is called to generate an API key.
+3. API key is saved to the database.
+4. API Key is returned to the user.
+
+### encode
+**Accepts:** POST
+
+**Returns:** 200, 400, 401, 405, 500
+
+The endpoint for user to encode images.
+Although known to be problematic, as established previously the encoding will be done asynchrously and the user will not be aware of any issues related to encoding.
+
+A regular encoding workflow will be like below:
+
+1. Request hits endpoint.
+2. Request body is parsed and validated.
+3. API Key gets validated through Session Service.
+4. Image hash is created through ImageHasherService.
+5. Through DBClient EncoderService checks if there exists an encoding for this Image Hash.
+6.1. If there is, Skip to #9
+6.2. If there isn't, a request is sent to the encoder service through FaceEncoderClient.
+7. Response from Encoder Service is parsed and validated.
+8. The encoding is saved to the database.
+9. An entry in the database is created linking the session to the Image Encoding.
+10. Operation is successful.
+
+### summary
+**Accepts:** GET
+
+**Returns:** 200, 400, 403, 500
+
+The endpoint for user to get their face encoding summary.
+
+A regular summary workflow will be like below:
+
+1. Request hits endpoint.
+2. API Key gets validated through Session Service.
+3. Database is queried to check which image encodings user has access to.
+4. Cache is queried to check if any of the image encodings user has access is cached.
+5. Database is queried to return encodings that are not in the cache
+6. The results are cached.
+7. Service returns the result to the user.
+
+
