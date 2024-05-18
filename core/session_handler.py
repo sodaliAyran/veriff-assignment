@@ -5,6 +5,7 @@ from proxies import db_proxy
 
 
 class SessionHandler:
+    db_proxy = db_proxy
 
     def __init__(self):
         return
@@ -12,16 +13,13 @@ class SessionHandler:
     @latency
     def create(self) -> uuid.uuid4():
         key = uuid.uuid4()
-        db_proxy.insert_session(key)
+        self.db_proxy.insert_session(key)
         return key
 
     @latency
     def authorize(self, session: str) -> bool:
-        return db_proxy.validate_session(session)
+        return self.db_proxy.validate_session(session)
 
     @latency
     def reset(self, session: str):
-        db_proxy.reset_session(session)
-
-
-
+        self.db_proxy.reset_session(session)
