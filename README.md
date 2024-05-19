@@ -273,3 +273,5 @@ The reason for that is I kind of wanted to make them function kind of like integ
 - I did not choose to user docker-compose because NO.
 - I did not dive deep into input sanitization. I think just checking file type and size is enough for this.
 - I'm not emitting any metrics because I think that would have been an overkill but I decided to log some metrics.(latency)
+- After I pushed my code to github I saw github worflows for python.
+I decided not use them because I don't have much experience with them and don't know how much it costs. But I know their uses for CI/CD.
