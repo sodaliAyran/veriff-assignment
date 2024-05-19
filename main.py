@@ -3,7 +3,7 @@ import logging
 import uvicorn
 from fastapi import FastAPI, Request, Response, UploadFile
 
-from constants import Paths, MediaType, API_KEY_REQUEST_HEADER_KEY
+from util.constants import Paths, MediaType, API_KEY_REQUEST_HEADER_KEY
 from model.summary import Summary
 from util.decorators import auth, image_size
 from model.api_key import ApiKey
@@ -44,7 +44,7 @@ async def get_summary(request: Request):
 
 
 @app.post(Paths.ENCODE.value)
-#@auth
+@auth
 @image_size
 async def upload_file(request: Request, file: UploadFile):
     file_content = await file.read()

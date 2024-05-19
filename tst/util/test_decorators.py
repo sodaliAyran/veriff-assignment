@@ -19,14 +19,14 @@ class TestAuthDecorator(IsolatedAsyncioTestCase):
         response = await test_endpoint(request=self.mock_request)
         self.assertEqual(response.status_code, 403)
 
-    @patch("util.authorization.session_handler")
+    @patch("util.decorators.session_handler")
     async def test_auth_valid_key(self, mock_session_handler):
-        mock_session_handler.authorize.return_value = True
         self.mock_request.headers = {"key": "valid_api_key"}
+        mock_session_handler.authorize.return_value = True
         response = await test_endpoint(request=self.mock_request)
         self.assertEqual(response.status_code, 200)
 
-    @patch("util.authorization.session_handler")
+    @patch("util.decorators.session_handler")
     async def test_auth_invalid_key(self, mock_session_handler):
         mock_session_handler.authorize.return_value = False
         self.mock_request.headers = {"key": "invalid_api_key"}

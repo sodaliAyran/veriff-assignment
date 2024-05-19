@@ -13,3 +13,7 @@ class CacheProxy:
           else remaining_images.append(image))
          for image in images]
         return remaining_images, encodings
+
+    def insert_encodings(self, encodings: dict[str, ImageEncoding]):
+        for key, value in encodings.items():
+            self._cache.put(key, value)

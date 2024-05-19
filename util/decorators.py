@@ -1,8 +1,8 @@
-from fastapi import Response, UploadFile
+from fastapi import Response
 from functools import wraps
 from typing import Callable
 
-from constants import MAX_UPLOAD_SIZE
+from util.constants import MAX_UPLOAD_SIZE
 from core import session_handler
 
 
