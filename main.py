@@ -2,7 +2,7 @@ import logging
 from typing import Optional
 
 import uvicorn
-from fastapi import FastAPI, Response, UploadFile, Header
+from fastapi import FastAPI, Response, UploadFile, Header, BackgroundTasks
 
 from util.constants import Paths, MediaType
 from model.summary import Summary
@@ -56,7 +56,7 @@ async def get_summary(key: Optional[str] = Header(None)):
 @image_size
 async def upload_file(file: UploadFile, key: Optional[str] = Header(None)):
     file_content = await file.read()
-    await encoder_handler.encode(key, file_content)
+    encoder_handler.encode(key, file_content)
     return Response(status_code=200)
 
 

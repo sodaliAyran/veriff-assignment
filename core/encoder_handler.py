@@ -12,7 +12,7 @@ class EncoderHandler:
     data_hasher = DATA_HASHER
 
     @latency
-    async def encode(self, session: str, data: bytes):
+    def encode(self, session: str, data: bytes):
         image_hash = self.data_hasher.hash(data)
         session_hash = self.data_hasher.hash(session)
 
