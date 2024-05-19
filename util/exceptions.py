@@ -16,8 +16,8 @@ class DependencyTimeoutException(DependencyException):
 
 
 class DependencyUnknownException(DependencyException):
-    def __init__(self, dependency_name: str, response_from_dependency: dict):
-        logging.fatal(f"'{dependency_name}' call failed with unknown reasons: '{response_from_dependency}'")
+    def __init__(self, dependency_name: str, response):
+        logging.fatal(f"'{dependency_name}' call failed with unknown reasons: '{response}'")
         super().__init__(status_code=500)
 
 

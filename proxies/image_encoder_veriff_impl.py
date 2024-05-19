@@ -17,7 +17,7 @@ from util.exceptions import (DependencyTimeoutException,
 class VeriffImageEncoderImpl(ImageEncoder):
     DEFAULT_ENCODER_URL = "http://localhost:8000/v1/selfie"
     TIMEOUT = 2  # seconds
-    __name__ = "VeriffEncoder"
+    __name__ = "VeriffImageEncoder"
 
     def __init__(self):
         self.url = os.environ.get(IMAGE_ENCODER_URL, self.DEFAULT_ENCODER_URL)
@@ -43,7 +43,7 @@ class VeriffImageEncoderImpl(ImageEncoder):
                         raise DependencyResponseValidationException(self.encode, self.__name__, e)
                 else:
                     raise DependencyEmptyResponseException(self.encode, self.__name__)
-            case 400, 422:
+            case 400 | 422:
                 raise DependencyBadRequestException(self.__name__, response.json())
             case _:
-                raise DependencyUnknownException(self.__name__, response.json())
+                raise DependencyUnknownException(self.__name__, response)

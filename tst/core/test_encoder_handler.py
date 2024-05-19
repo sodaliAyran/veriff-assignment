@@ -15,6 +15,15 @@ class TestEncoderHandler(IsolatedAsyncioTestCase):
         self.MOCK_IMAGE_ENCODING = ImageEncoding(faces=[FaceEncoding(encoding=[0])])
 
     @patch('core.EncoderHandler.db_proxy')
+    @patch('core.EncoderHandler.data_hasher')
+    async def test_encode_over_image_limit_raises_exception(self, mock_data_hasher, mock_db_proxy):
+        mock_data_hasher.hash = lambda hash_item: self.MOCK_IMAGE_HASH \
+            if hash_item == self.MOCK_IMAGE_DATA else self.MOCK_SESSION_ID_HASH
+        mock_db_proxy.get_session_limit.return_value = 5
+        with self.assertRaises(ValueError):
+            await self.encoder_handler.encode(self.MOCK_SESSION_ID, self.MOCK_IMAGE_DATA)
+
+    @patch('core.EncoderHandler.db_proxy')
     @patch('core.EncoderHandler.image_encoder_proxy')
     @patch('core.EncoderHandler.data_hasher')
     async def test_encode_with_cached_image(self, mock_data_hasher,
@@ -22,6 +31,7 @@ class TestEncoderHandler(IsolatedAsyncioTestCase):
                                             mock_db_proxy):
         mock_data_hasher.hash = lambda hash_item: self.MOCK_IMAGE_HASH \
             if hash_item == self.MOCK_IMAGE_DATA else self.MOCK_SESSION_ID_HASH
+        mock_db_proxy.get_session_limit.return_value = 0
         mock_db_proxy.contains_encoding.return_value = True
 
         await self.encoder_handler.encode(self.MOCK_SESSION_ID, self.MOCK_IMAGE_DATA)
@@ -39,6 +49,7 @@ class TestEncoderHandler(IsolatedAsyncioTestCase):
                                                 mock_db_proxy):
         mock_data_hasher.hash = lambda hash_item: self.MOCK_IMAGE_HASH \
             if hash_item == self.MOCK_IMAGE_DATA else self.MOCK_SESSION_ID_HASH
+        mock_db_proxy.get_session_limit.return_value = 0
         mock_db_proxy.contains_encoding.return_value = False
         mock_image_encoder_proxy.encode.return_value = self.MOCK_IMAGE_ENCODING
 

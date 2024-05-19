@@ -13,6 +13,9 @@ class DatabaseProxy:
     def update_session(self, session_hash: str, image_hash: str):
         self._session_table[session_hash].append(image_hash)
 
+    def get_session_limit(self, session_hash: str) -> int:
+        return len(self._session_table[session_hash])
+
     def validate_session(self, session_hash: str) -> bool:
         return session_hash in self._session_table
 

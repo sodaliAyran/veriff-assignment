@@ -2,16 +2,15 @@ from fastapi import Response
 from functools import wraps
 from typing import Callable
 
-from util.constants import MAX_UPLOAD_SIZE
+from util.constants import MAX_UPLOAD_SIZE, API_KEY_REQUEST_HEADER_KEY
 from core import session_handler
 
 
 def auth(func: Callable):
     @wraps(func)
     async def wrapper(*args, **kwargs):
-        request = kwargs.get("request")
-        api_key = request.headers.get("key")
-        if api_key is None or not session_handler.authorize(api_key):
+        key = kwargs.get(API_KEY_REQUEST_HEADER_KEY)
+        if key is None or not session_handler.authorize(key):
             return Response(status_code=403)
         return await func(*args, **kwargs)
     return wrapper
