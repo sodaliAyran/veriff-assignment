@@ -2,7 +2,7 @@ from unittest import IsolatedAsyncioTestCase
 from unittest.mock import MagicMock, patch
 from fastapi import Response, Request
 
-from util.authorization import auth
+from util.decorators import auth
 
 
 @auth
