@@ -1,7 +1,7 @@
 from typing import Optional
 from unittest import IsolatedAsyncioTestCase
-from unittest.mock import MagicMock, patch
-from fastapi import Response, Request, Header
+from unittest.mock import patch
+from fastapi import Response, Header
 
 from util.decorators import auth
 

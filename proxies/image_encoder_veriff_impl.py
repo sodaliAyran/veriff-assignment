@@ -15,7 +15,7 @@ from util.exceptions import (DependencyTimeoutException,
 
 
 class VeriffImageEncoderImpl(ImageEncoder):
-    DEFAULT_ENCODER_URL = "http://localhost:8000/v1/selfie"
+    DEFAULT_ENCODER_URL = "http://face-encoding-app:8000/v1/selfie"
     TIMEOUT = 2  # seconds
     __name__ = "VeriffImageEncoder"
 
