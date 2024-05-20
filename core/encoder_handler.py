@@ -1,8 +1,8 @@
-import logging
 
+from config import SESSION_IMAGE_LIMIT
 from proxies import DB_PROXY, DATA_HASHER, IMAGE_ENCODER
 from proxies.image_encoder_proxy import ImageEncoder
-from util.constants import SESSION_IMAGE_LIMIT
+from util.exceptions import LimitReachedException
 from util.metrics import latency
 
 
@@ -17,8 +17,7 @@ class EncoderHandler:
         session_hash = self.data_hasher.hash(session)
 
         if self.db_proxy.get_session_limit(session_hash) >= SESSION_IMAGE_LIMIT:
-            logging.error(f"User: '{session_hash}' reached its image upload limit.")
-            raise ValueError
+            raise LimitReachedException(session_hash)
 
         if not self.db_proxy.contains_encoding(image_hash):  # I should check cache here but I won't
             encoding = self.image_encoder_proxy.encode(data)

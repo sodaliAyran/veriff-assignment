@@ -1,10 +1,8 @@
-import os
-
 import requests
 from pydantic import ValidationError
 from requests import Response
 
-from util.constants import IMAGE_ENCODER_URL
+from config import IMAGE_ENCODER_URL, IMAGE_ENCODER_TIMEOUT
 from model.summary import ImageEncoding, FaceEncoding
 from proxies.image_encoder_proxy import ImageEncoder
 from util.exceptions import (DependencyTimeoutException,
@@ -15,18 +13,17 @@ from util.exceptions import (DependencyTimeoutException,
 
 
 class VeriffImageEncoderImpl(ImageEncoder):
-    DEFAULT_ENCODER_URL = "http://face-encoding-app:8000/v1/selfie"
-    TIMEOUT = 2  # seconds
+
     __name__ = "VeriffImageEncoder"
 
     def __init__(self):
-        self.url = os.environ.get(IMAGE_ENCODER_URL, self.DEFAULT_ENCODER_URL)
+        self.url = IMAGE_ENCODER_URL
 
     def encode(self, data: bytes) -> ImageEncoding:
         try:
             response = requests.post(self.url,
                                      files={"file": data},
-                                     timeout=self.TIMEOUT)
+                                     timeout=IMAGE_ENCODER_TIMEOUT)
         except requests.Timeout:
             raise DependencyTimeoutException(self.encode, self.__name__)
         return self._handle_response(response)

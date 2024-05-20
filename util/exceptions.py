@@ -4,6 +4,12 @@ from typing import Callable
 from fastapi import HTTPException
 
 
+class LimitReachedException(HTTPException):
+    def __init__(self, session_hash: str):
+        logging.error(f"User: '{session_hash}' reached its image upload limit.")
+        super().__init__(status_code=403)
+
+
 class DependencyException(HTTPException):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

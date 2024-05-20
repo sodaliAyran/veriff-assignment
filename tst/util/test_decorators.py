@@ -15,7 +15,7 @@ class TestAuthDecorator(IsolatedAsyncioTestCase):
 
     async def test_auth_missing_key(self):
         response = await test_endpoint()
-        self.assertEqual(403, response.status_code)
+        self.assertEqual(401, response.status_code)
 
     @patch("util.decorators.session_handler")
     async def test_auth_valid_key(self, mock_session_handler):
@@ -27,5 +27,5 @@ class TestAuthDecorator(IsolatedAsyncioTestCase):
     async def test_auth_invalid_key(self, mock_session_handler):
         mock_session_handler.authorize.return_value = False
         response = await test_endpoint(key="INVALID")
-        self.assertEqual(403, response.status_code)
+        self.assertEqual(401, response.status_code)
 

@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 from core import EncoderHandler
 from model.summary import ImageEncoding, FaceEncoding
+from util.exceptions import LimitReachedException
 
 
 class TestEncoderHandler(unittest.TestCase):
@@ -20,7 +21,7 @@ class TestEncoderHandler(unittest.TestCase):
         mock_data_hasher.hash = lambda hash_item: self.MOCK_IMAGE_HASH \
             if hash_item == self.MOCK_IMAGE_DATA else self.MOCK_SESSION_ID_HASH
         mock_db_proxy.get_session_limit.return_value = 5
-        with self.assertRaises(ValueError):
+        with self.assertRaises(LimitReachedException):
             self.encoder_handler.encode(self.MOCK_SESSION_ID, self.MOCK_IMAGE_DATA)
 
     @patch('core.EncoderHandler.db_proxy')

@@ -20,10 +20,7 @@
 
 6. Send `curl -X -H "key: 'your-api-key'" -F "file=@/path/to/your/file" localhost:8001/encode`.
 
-Depending on the image you send you can get the following responses:
-- HTTP 200 -> Encoding Successful.
-- HTTP 500 -> There was a problem with the service.
-- HTTP 400 -> The image you sent does not have any faces or more than 6 faces.
+Check [/encode](#encode) or [docs endpoint](http://0.0.0.0:8001/docs#/default/upload_file_encode_post) for possible responses.
 
 7. Send `curl -i -H "key='your-api-key'" localhost:8001/summary`
 
@@ -198,6 +195,8 @@ All this will cost data staleness, but I don't think the encodings will change f
 
 ## Endpoints
 
+**Swagger/OpenApi endpoint documentation can be found at /docs after you run the service.**
+
 ### ping
 **Accepts:** GET
 
@@ -208,7 +207,7 @@ A health check endpoint validate the service is up and running.
 ### session
 **Accepts:** GET, DELETE
 
-**Returns:** 200, 204
+**Returns:** 200, 204, 401
 
 The endpoint to create and clear user sessions. 
 Keep in mind that session clear will not delete the API key but the resources related to the session.
@@ -216,16 +215,15 @@ A regular session creation workflow will be like below:
 
 1. Request hits the endpoint.
 2. SessionService is called to generate an API key.
-3. API key is saved to the database.
+3. API key is hashed and saved to the database.
 4. API Key is returned to the user.
 
 ### encode
 **Accepts:** POST
 
-**Returns:** 200, 400, 403, 500
+**Returns:** 200, 400, 401, 403, 413, 500
 
 The endpoint for user to encode images.
-Although known to be problematic, as established previously the encoding will be done asynchronously and the user will not be aware of any issues related to encoding.
 
 A regular encoding workflow will be like below:
 
@@ -244,7 +242,7 @@ A regular encoding workflow will be like below:
 ### summary
 **Accepts:** GET
 
-**Returns:** 200, 400, 403
+**Returns:** 200, 401
 
 The endpoint for user to get their face encoding summary.
 
@@ -262,16 +260,17 @@ A regular summary workflow will be like below:
 
 - During implementation, I realized I was using API Keys raw. Saving them to database as they are. 
 This is a huge security issue therefore I decided to change `ImageHasher` class to `DataHasher`. 
-I did not update the design for this though.
+I did not update the whole design for this change because I wanted to show that I missed some stuff during initial design.
 - I think I over-engineered this solution to the point where a simpler implementation would be fast. 
 In theory my implementation is the ideal scenario but in practically, 
 everything is already in the memory and there are no database table joins therefore I'm checking the memory twice for no reason.
 The reason I decided to do this is that I wanted to approach this challenge as system design challenge rather than a co challenge.
-- Tests do not cover 100%. I think O wrote enough tests to show that I do write tests.
+- Tests do not cover 100%. I think I wrote enough tests to show that I *do* write tests.
 - For testing the dependency client I decided not to use mocking. 
 The reason for that is I kind of wanted to make them function kind of like integration tests, testing the whole functionality.
-- I did not choose to user docker-compose because NO.
+- I'm treating empty responses from the EncodingService as errors. This by design but if necessary can be changed.
+- I choose not to use docker-compose because NO.
 - I did not dive deep into input sanitization. I think just checking file type and size is enough for this.
-- I'm not emitting any metrics because I think that would have been an overkill but I decided to log some metrics.(latency)
-- After I pushed my code to github I saw github worflows for python.
+- I'm not emitting any metrics because I think that would have been an overkill, but I decided to log some metrics.(latency)
+- After I pushed my code to github I saw github workflows for python.
 I decided not use them because I don't have much experience with them and don't know how much it costs. But I know their uses for CI/CD.
